@@ -24,6 +24,15 @@ FEEDS = {
     ],
 }
 
+SOURCE_NAMES = {
+    "https://www.ilsole24ore.com/rss/finanza.xml": "Il Sole 24 Ore",
+    "https://it.investing.com/rss/news.rss": "Investing.com",
+    "https://www.ansa.it/sito/notizie/tecnologia/tecnologia_rss.xml": "ANSA Tecnologia",
+    "https://techcrunch.com/category/artificial-intelligence/feed/": "TechCrunch",
+    "https://www.ansa.it/sito/notizie/sport/sport_rss.xml": "ANSA Sport",
+    "https://it.motorsport.com/rss/f1/news/": "Motorsport.com",
+}
+
 ITEMS_PER_TOPIC = 6
 SUMMARY_MAX_CHARS = 180
 
@@ -75,7 +84,7 @@ def fetch_topic_entries(urls: list[str]) -> list[dict]:
                     "summary": clean_summary(e.get("summary", e.get("description", ""))),
                     "image": extract_image(e),
                     "published_parsed": e.get("published_parsed"),
-                    "source": parsed.feed.get("title", ""),
+                    "source": SOURCE_NAMES.get(url, parsed.feed.get("title", "")),
                 }
             )
     entries.sort(key=lambda x: x["published_parsed"] or 0, reverse=True)
@@ -96,11 +105,12 @@ def render_article(it: dict, lead: bool) -> str:
         else ""
     )
     headline_tag = "h3" if lead else "h4"
+    dek_html = f'<p class="dek">{html.escape(it["summary"])}</p>' if it["summary"] else ""
     return f"""<article class="story{' lead' if lead else ''}">
   {image_html}
   <div class="story-text">
     <{headline_tag}><a href="{html.escape(it['link'])}" target="_blank" rel="noopener">{html.escape(it['title'])}</a></{headline_tag}>
-    <p class="dek">{html.escape(it['summary'])}</p>
+    {dek_html}
     <p class="byline">{html.escape(it['source'])}</p>
   </div>
 </article>"""
