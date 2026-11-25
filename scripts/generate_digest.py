@@ -13,24 +13,38 @@ FEEDS = {
     "Mercati finanziari": [
         "https://www.ilsole24ore.com/rss/finanza.xml",
         "https://it.investing.com/rss/news.rss",
+        "https://www.repubblica.it/rss/economia/rss2.0.xml",
+        "https://www.ansa.it/sito/notizie/economia/economia_rss.xml",
     ],
     "Tecnologia / AI": [
         "https://www.ansa.it/sito/notizie/tecnologia/tecnologia_rss.xml",
         "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "https://www.wired.it/feed/rss",
+        "https://www.repubblica.it/rss/tecnologia/rss2.0.xml",
     ],
     "Sport e motori": [
         "https://www.ansa.it/sito/notizie/sport/sport_rss.xml",
         "https://it.motorsport.com/rss/f1/news/",
+        "https://www.gazzetta.it/rss/home.xml",
+        "https://www.gazzetta.it/rss/motori.xml",
+        "https://sport.sky.it/rss/sport.xml",
     ],
 }
 
 SOURCE_NAMES = {
     "https://www.ilsole24ore.com/rss/finanza.xml": "Il Sole 24 Ore",
     "https://it.investing.com/rss/news.rss": "Investing.com",
+    "https://www.repubblica.it/rss/economia/rss2.0.xml": "Repubblica Economia",
+    "https://www.ansa.it/sito/notizie/economia/economia_rss.xml": "ANSA Economia",
     "https://www.ansa.it/sito/notizie/tecnologia/tecnologia_rss.xml": "ANSA Tecnologia",
     "https://techcrunch.com/category/artificial-intelligence/feed/": "TechCrunch",
+    "https://www.wired.it/feed/rss": "Wired Italia",
+    "https://www.repubblica.it/rss/tecnologia/rss2.0.xml": "Repubblica Italian Tech",
     "https://www.ansa.it/sito/notizie/sport/sport_rss.xml": "ANSA Sport",
     "https://it.motorsport.com/rss/f1/news/": "Motorsport.com",
+    "https://www.gazzetta.it/rss/home.xml": "La Gazzetta dello Sport",
+    "https://www.gazzetta.it/rss/motori.xml": "Gazzetta Motori",
+    "https://sport.sky.it/rss/sport.xml": "Sky Sport",
 }
 
 ITEMS_PER_TOPIC = 6
@@ -87,7 +101,12 @@ def fetch_topic_entries(urls: list[str]) -> list[dict]:
                     "source": SOURCE_NAMES.get(url, parsed.feed.get("title", "")),
                 }
             )
-    entries.sort(key=lambda x: x["published_parsed"] or 0, reverse=True)
+    import calendar
+
+    entries.sort(
+        key=lambda x: calendar.timegm(x["published_parsed"]) if x["published_parsed"] else 0,
+        reverse=True,
+    )
     seen_titles = set()
     unique = []
     for e in entries:
